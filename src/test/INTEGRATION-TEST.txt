@@ -11,15 +11,15 @@ Pre-requisites:
 Tested Platform: 
 
  - Microsoft WINDOWS V-7
- - UBUNTU 14.04
- - WSO2 ESB 5.0.0
+ - UBUNTU 16.04
+ - WSO2 EI6.1.1
 
 Note:
     Set up a new DocuSign account and follow all the instruction given below in step 4 to generate an access token.
 
 Steps to follow in setting integration test.
 
- 1. Download ESB 5.0.0 from official website.
+ 1. Download wso2ei-6.1.1g from official website.
 
  2. Create a DocuSign developer account using URL https://secure.docusign.com/signup/develop
         Note: Get your free developer account.
@@ -36,22 +36,56 @@ Steps to follow in setting integration test.
              This command will import DocuSign certificate into keystore.
              To import the certificate give "wso2carbon" as password. Press "Y" to complete certificate import process.
 
+                                            and
+
+             Navigate to <DOCUSIGN_CONNECTOR_HOME>/src/test/resources/keystores/products" using command prompt and execute the following command
+
+                    keytool -importcert -file CERT_FILE_NAME -keystore wso2carbon.jks -alias "CERT_NAME"
+
+             This command will import DocuSign certificate into keystore.
+             To import the certificate give "wso2carbon" as password. Press "Y" to complete certificate import process.
+
              NOTE : CERT_FILE_NAME - Replace CERT_FILE_NAME with the file name that was extracted from DocuSign with the extension. (e.g. demo.docusign.net.crt)
                     CERT_NAME - Replace CERT_NAME with an arbitrary name for the certificate. (e.g. demo.docusign.net)
 
- 4. Follow the bellow mentioned steps to generate the access token:
+             Remove the copied certificate after import the certificate
+
+ 4. Follow the bellow mentioned steps to generate the access token and refresh token:
         i)     Log in to your DocuSign account, and go to the following URLs:
                    https://demo.docusign.net/Member/MemberLogin.aspx?event=logout
         ii)    Go to Admin: This can be done from your DocuSign account by selecting the Go to Admin link in the account settings drop-down menu.
-        iii)   In DocuSign Admin, click API and Keys in the left navigation panel and click ADD INTEGRATOR KEY.
-        iv)    Click ADD to save the integrator key information.
+        iii)   In DocuSign Admin, click API and Keys in the left navigation panel.
+        iv)    Click ADD integrator key then click add the security key and save the information.
+               (Both integrator key & security key are need to get an access Token)
         v)     Now you got the Integration key.In order to communicate with the DocuSign OAuth service,
                you will need an integrator key, which will serve as your client id,
         vi)    To obtain the baseUrl, Call the getLoginInformation API method call(e.g. https://demo.docusign.net/restapi/v2/)
-        v)     Post to Token Endpoint to obtain the accessToken(use getOAuthToken method).
-               The client user’s username, password are used, along with the client application’s integrator key (set as “clientId”).
+        v)     Generate accessToken and refresh token.
+            1. Get the Authorization code from Azure Access Control Service Construct the authorization url as follows:
+                https://account-d.docusign.com/oauth/auth?
+                  response_type=code
+                  &scope=signature
+                  &client_id=230546a7-9c55-40ad-8fbf-af205d5494ad
+                  &redirect_uri=http://www.example.com/callback
+                If the authentication is successful, the authentication service redirects the user to the redirect_uri.
+                The callback contains a code that you will exchange for a token in the next step.
 
- 5. Compress modified ESB as wso2esb-5.0.0.zip and copy that zip file in to location "{DOCUSIGN_CONNECTOR_HOME}/repository/".
+            2.  To get access token and refresh token, Construct the below post request:
+
+                POST https://account-d.docusign.com/oauth/token
+                Content-Type: application/x-www-form-urlencoded
+                Authorization: Basic MjMwNTQ2YTctOWM1NS00MGFkLThmYmYtYWYyMDVkNTQ5NGFkOjMwI2LTY4MmM3YmYyNzZlOQ==
+                grant_type=authorization_code&code=Authorization code obtained from the previous step.
+
+                The Authorization header contains the word Basic and the base64 representation of your integrator key
+                and the secret key you generated when you set up the integration in DocuSign Admin.
+                 i.e,   your integrator key is 230546a7-9c55-40ad-8fbf-af205d5494ad and the secret key is
+                    3087555e-0a1c-4aa8-b326-682c7bf276e9 you can get the base64 value like this in a JavaScript console:
+                    btoa('230546a7-9c55-40ad-8fbf-af205d5494ad:3087555e-0a1c-4aa8-b326-682c7bf276e9')
+
+                 (for more information https://docs.docusign.com/esign/guide/authentication/oa2_auth_code.html)
+
+ 5. Compress modified EI as wso2ei-6.1.1.zip and copy that zip file in to location "{DOCUSIGN_CONNECTOR_HOME}/repository/".
 
  6. Update the DocuSign properties file at location "{DOCUSIGN_CONNECTOR_HOME}/src/test/resources/artifacts/ESB/connector/config" as below.
 

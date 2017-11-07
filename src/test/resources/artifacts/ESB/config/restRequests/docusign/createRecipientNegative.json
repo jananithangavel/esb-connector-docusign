@@ -8,5 +8,5 @@
   "authenticationMethod":"%s(authenticationMethod)",
   "clientUserId":"",
   "email":"%s(email)",
-  "returnUrl":"%s(returnUrl)"
+  "returnUrl":""
 }

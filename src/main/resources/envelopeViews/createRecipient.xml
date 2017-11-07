@@ -20,7 +20,7 @@
     <parameter name="accountId"
                description="The accountId of the account that the user is using, returned in the Login response."/>
     <parameter name="envelopeId" description="The envelopeId Guid of the envelope being accessed."/>
-    <parameter name="recipientUserName"
+    <parameter name="userName"
                description="Specifies the username of the recipient. You can use either email and userName or
                userId to identify the recipient."/>
     <parameter name="authenticationMethod" description="This is used to authenticate the recipient/signer."/>
@@ -49,7 +49,7 @@
     <sequence>
         <property name="uri.var.accountId" expression="$func:accountId"/>
         <property name="uri.var.envelopeId" expression="$func:envelopeId"/>
-        <property name="uri.var.recipientUserName" expression="$func:recipientUserName"/>
+        <property name="uri.var.userName" expression="$func:userName"/>
         <property name="uri.var.authenticationMethod" expression="$func:authenticationMethod"/>
         <property name="uri.var.clientUserId" expression="$func:clientUserId"/>
         <property name="uri.var.email" expression="$func:email"/>
@@ -65,7 +65,7 @@
         <property name="uri.var.xFrameOptionsAllowFromUrl" expression="$func:xFrameOptionsAllowFromUrl"/>
         <script language="js"><![CDATA[
             //request body param variables
-            var recipientUserName=mc.getProperty('uri.var.recipientUserName');
+            var userName=mc.getProperty('uri.var.userName');
             var authenticationMethod=mc.getProperty('uri.var.authenticationMethod');
             var clientUserId=mc.getProperty('uri.var.clientUserId');
             var email=mc.getProperty('uri.var.email');
@@ -81,8 +81,8 @@
             var xFrameOptionsAllowFromUrl=mc.getProperty('uri.var.xFrameOptionsAllowFromUrl');
             //Get the existing payload
             var query = '{';
-            if (recipientUserName != "null" && recipientUserName != null && recipientUserName != "") {
-                query = query.concat('"'+'userName":"' + recipientUserName+'",');
+            if (userName != "null" && userName != null && userName != "") {
+                query = query.concat('"'+'userName":"' + userName+'",');
             }
             if (authenticationMethod != "null" && authenticationMethod != null && authenticationMethod != "") {
                 query = query.concat('"'+'authenticationMethod":"' + authenticationMethod+'",');
